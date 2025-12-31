@@ -44,6 +44,9 @@ cd ..
 
 echo -e "${BLUE}📦 Installing client dependencies...${NC}"
 cd client
+# Fix rollup optional dependency bug (https://github.com/npm/cli/issues/4828)
+echo -e "${BLUE}   Cleaning client dependencies...${NC}"
+rm -rf node_modules package-lock.json
 npm install
 cd ..
 
