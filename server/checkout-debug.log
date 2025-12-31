@@ -1,0 +1,66 @@
+[2025-12-31T12:45:35.901Z] --- Creating Transaction ---
+[2025-12-31T12:45:35.902Z] Payload: {
+  "items": [
+    {
+      "productId": "69548ca57acaf6a3a98b6142",
+      "name": "Test",
+      "quantity": 1,
+      "price": 100,
+      "subtotal": 100
+    }
+  ],
+  "totalAmount": 100,
+  "paymentMethod": "Cash",
+  "customerName": "",
+  "customerPhone": "",
+  "tax": 0,
+  "discount": 0,
+  "createdBy": "69541860b7e027e718e3c125"
+}
+[2025-12-31T12:45:35.902Z] Processing item: Test (69548ca57acaf6a3a98b6142)
+[2025-12-31T12:45:35.950Z] Updating stock for 69548ca57acaf6a3a98b6142
+[2025-12-31T12:45:36.021Z] CRITICAL ERROR in TransactionsService.create: Product validation failed: costPrice: Path `costPrice` is required.
+[2025-12-31T12:45:36.021Z] Stack: ValidationError: Product validation failed: costPrice: Path `costPrice` is required.
+    at Document.invalidate (D:\Workspace\REPOS\GitHub\framezlabs-erp\server\node_modules\mongoose\lib\document.js:3379:32)
+    at validatePath (D:\Workspace\REPOS\GitHub\framezlabs-erp\server\node_modules\mongoose\lib\document.js:3154:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Promise.all (index 0)
+    at async model.$__validate (D:\Workspace\REPOS\GitHub\framezlabs-erp\server\node_modules\mongoose\lib\document.js:3095:3)
+    at async model.validate (D:\Workspace\REPOS\GitHub\framezlabs-erp\server\node_modules\mongoose\lib\document.js:2672:5)
+    at async model.validateBeforeSave (D:\Workspace\REPOS\GitHub\framezlabs-erp\server\node_modules\mongoose\lib\plugins\validateBeforeSave.js:34:7)
+    at async Kareem.execPre (D:\Workspace\REPOS\GitHub\framezlabs-erp\server\node_modules\kareem\index.js:65:24)
+    at async model.$__save (D:\Workspace\REPOS\GitHub\framezlabs-erp\server\node_modules\mongoose\lib\model.js:369:5)
+    at async model.save (D:\Workspace\REPOS\GitHub\framezlabs-erp\server\node_modules\mongoose\lib\model.js:609:5)
+[2025-12-31T12:46:47.083Z] --- Creating Transaction ---
+[2025-12-31T12:46:47.084Z] Payload: {
+  "items": [
+    {
+      "productId": "69548ca57acaf6a3a98b6142",
+      "name": "Test",
+      "quantity": 1,
+      "price": 100,
+      "subtotal": 100
+    }
+  ],
+  "totalAmount": 100,
+  "paymentMethod": "Cash",
+  "customerName": "",
+  "customerPhone": "",
+  "tax": 0,
+  "discount": 0,
+  "createdBy": "69541860b7e027e718e3c125"
+}
+[2025-12-31T12:46:47.085Z] Processing item: Test (69548ca57acaf6a3a98b6142)
+[2025-12-31T12:46:47.134Z] Updating stock for 69548ca57acaf6a3a98b6142
+[2025-12-31T12:46:47.211Z] CRITICAL ERROR in TransactionsService.create: Product validation failed: costPrice: Path `costPrice` is required.
+[2025-12-31T12:46:47.214Z] Stack: ValidationError: Product validation failed: costPrice: Path `costPrice` is required.
+    at Document.invalidate (D:\Workspace\REPOS\GitHub\framezlabs-erp\server\node_modules\mongoose\lib\document.js:3379:32)
+    at validatePath (D:\Workspace\REPOS\GitHub\framezlabs-erp\server\node_modules\mongoose\lib\document.js:3154:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Promise.all (index 0)
+    at async model.$__validate (D:\Workspace\REPOS\GitHub\framezlabs-erp\server\node_modules\mongoose\lib\document.js:3095:3)
+    at async model.validate (D:\Workspace\REPOS\GitHub\framezlabs-erp\server\node_modules\mongoose\lib\document.js:2672:5)
+    at async model.validateBeforeSave (D:\Workspace\REPOS\GitHub\framezlabs-erp\server\node_modules\mongoose\lib\plugins\validateBeforeSave.js:34:7)
+    at async Kareem.execPre (D:\Workspace\REPOS\GitHub\framezlabs-erp\server\node_modules\kareem\index.js:65:24)
+    at async model.$__save (D:\Workspace\REPOS\GitHub\framezlabs-erp\server\node_modules\mongoose\lib\model.js:369:5)
+    at async model.save (D:\Workspace\REPOS\GitHub\framezlabs-erp\server\node_modules\mongoose\lib\model.js:609:5)
