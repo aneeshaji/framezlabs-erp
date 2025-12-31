@@ -115,8 +115,3 @@ framezlabs-erp/
 ## License
 
 This project is licensed under the MIT License.
-
-## Contact
-
-FramezLabs - Karunagappally, Kollam, Kerala 690573
-Phone: +91 9995064344
