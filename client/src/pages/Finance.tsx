@@ -2,15 +2,10 @@
 import {
     TrendingUp,
     TrendingDown,
-    DollarSign,
     Plus,
     Trash2,
-    Calendar,
-    Tag,
     FileText,
     PieChart,
-    ArrowUpRight,
-    ArrowDownRight,
     Wallet
 } from 'lucide-react';
 import financeService, { Expense, FinancialSummary } from '../services/finance.service';

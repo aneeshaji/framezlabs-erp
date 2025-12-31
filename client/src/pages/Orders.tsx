@@ -7,9 +7,7 @@ import {
     AlertCircle,
     Truck,
     Timer,
-    MoreVertical,
     ChevronRight,
-    ArrowRight,
     Plus
 } from 'lucide-react';
 import orderService, { Order, OrderStatus } from '../services/order.service';

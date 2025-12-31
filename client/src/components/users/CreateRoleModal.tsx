@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ShieldPlus, Loader2, Link2, FileText } from 'lucide-react';
+import { X, ShieldPlus, Loader2, FileText } from 'lucide-react';
 import userService from '../../services/user.service';
 
 interface CreateRoleModalProps {

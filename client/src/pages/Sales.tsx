@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import { Search, ReceiptText, Filter, ShoppingBag, Calendar, TrendingUp, Eye } from 'lucide-react';
 import posService, { Transaction } from '../services/pos.service';
 import InvoiceModal from '../components/modals/InvoiceModal';
-
-import clsx from 'clsx';
 import { useAuth } from '../context/AuthContext';
 
 export default function SalesHistory() {

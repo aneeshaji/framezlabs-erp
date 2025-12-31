@@ -1,4 +1,4 @@
-import { Bell, Check, Info, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { Bell, Info, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { useNotifications } from '../../context/NotificationContext';
 import clsx from 'clsx';
 import { formatDistanceToNow } from 'date-fns';
