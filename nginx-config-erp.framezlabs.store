@@ -1,15 +1,15 @@
 server {
     listen 80;
     listen [::]:80;
-    server_name erp.famezlabs.store;
+    server_name erp.framezlabs.store;
 
     # Frontend - React build
     root /home/ubuntu/framezlabs-erp/client/dist;
     index index.html;
 
     # Logging
-    access_log /var/log/nginx/erp.famezlabs.store.access.log;
-    error_log /var/log/nginx/erp.famezlabs.store.error.log;
+    access_log /var/log/nginx/erp.framezlabs.store.access.log;
+    error_log /var/log/nginx/erp.framezlabs.store.error.log;
 
     # Gzip compression
     gzip on;

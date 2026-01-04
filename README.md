@@ -112,6 +112,27 @@ framezlabs-erp/
 └── .env.sample          # Root environment template
 ```
 
+## Deployment
+
+### Deploy to AWS EC2
+
+This project includes automated deployment scripts for AWS EC2:
+
+- **[QUICK-DEPLOY.md](QUICK-DEPLOY.md)** - Quick reference guide (⚡ Start here!)
+- **[DEPLOYMENT-GUIDE-EXISTING-EC2.md](DEPLOYMENT-GUIDE-EXISTING-EC2.md)** - Step-by-step guide for existing EC2
+- **[DEPLOYMENT-GUIDE.md](DEPLOYMENT-GUIDE.md)** - Complete deployment guide
+
+**Quick Start:**
+```bash
+# On EC2 instance (ensure .env files are configured first)
+git clone https://github.com/yourusername/framezlabs-erp.git
+cd framezlabs-erp
+chmod +x deploy-to-ec2.sh
+./deploy-to-ec2.sh
+```
+
+See [QUICK-DEPLOY.md](QUICK-DEPLOY.md) for detailed instructions.
+
 ## License
 
 This project is licensed under the MIT License.
