@@ -5,7 +5,7 @@
 devnest       → Port 5000 → Port 81 (custom)
 atsense       → Port 5001 → atsense.online
 framezlabs    → Port 5002 → framezlabs.store
-framezlabs-erp → Port 5003 → erp.famezlabs.store ✨
+framezlabs-erp → Port 5003 → erp.framezlabs.store ✨
 ```
 
 ## Files Created for Deployment
@@ -13,7 +13,7 @@ framezlabs-erp → Port 5003 → erp.famezlabs.store ✨
 | File | Purpose |
 |------|---------|
 | `ecosystem.config.js` | PM2 process configuration (port 5003) |
-| `nginx-config-erp.famezlabs.store` | Nginx reverse proxy config |
+| `nginx-config-erp.framezlabs.store` | Nginx reverse proxy config |
 | `client/.env.production` | Production API URL template |
 | `deploy-to-ec2.sh` | Automated deployment script |
 
@@ -38,7 +38,7 @@ git pull origin main
 Ensure your `.env` files are already configured with the correct values:
 - ✅ `.env` - MongoDB URI
 - ✅ `server/.env` - MongoDB URI, JWT_SECRET, PORT=5003
-- ✅ `client/.env` - API URL (https://erp.famezlabs.store/api)
+- ✅ `client/.env` - API URL (https://erp.framezlabs.store/api)
 
 ### 🤖 4. Run Deployment Script
 ```bash
