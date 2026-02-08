@@ -33,7 +33,13 @@ export class AuthController {
     if (!user) {
         throw new UnauthorizedException('User not found');
     }
-    const { passwordHash, ...result } = user.toObject();
-    return result;
+    // Explicitly return the fields consistent with the login structure
+    return {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+    };
   }
 }

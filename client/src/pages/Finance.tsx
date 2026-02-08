@@ -177,7 +177,10 @@ export default function Finance() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-500">
-                                                {new Date(expense.date).toLocaleDateString()}
+                                                {(() => {
+                                                    const d = new Date(expense.date);
+                                                    return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
+                                                })()}
                                             </td>
                                             <td className="px-6 py-4 text-right font-black text-gray-900">
                                                 {expense.amount.toLocaleString()}

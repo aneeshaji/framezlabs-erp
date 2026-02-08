@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useAuth } from './AuthContext';
 
 export interface Notification {
@@ -23,13 +23,14 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const { user } = useAuth();
-    const API_URL = (import.meta as any).env.VITE_API_URL || 'http://localhost:5000/api';
+
 
     const fetchNotifications = async () => {
         if (!user) return;
         try {
-            const response = await axios.get(`${API_URL}/notifications?limit=10`);
-            setNotifications(response.data);
+            const response = await api.get('/notifications?limit=10');
+            const data = response.data;
+            setNotifications(Array.isArray(data) ? data : (data?.data || []));
         } catch (error) {
             console.error('Failed to fetch notifications', error);
         }
@@ -37,7 +38,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
     const markAsRead = async (id: string) => {
         try {
-            await axios.patch(`${API_URL}/notifications/${id}/read`);
+            await api.patch(`/notifications/${id}/read`);
             setNotifications(notifications.map(n =>
                 n._id === id ? { ...n, read: true } : n
             ));
@@ -55,7 +56,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         }
     }, [user]);
 
-    const unreadCount = notifications.filter(n => !n.read).length;
+    const unreadCount = Array.isArray(notifications) ? notifications.filter(n => !n.read).length : 0;
 
     return (
         <NotificationContext.Provider value={{ notifications, unreadCount, markAsRead, fetchNotifications }}>

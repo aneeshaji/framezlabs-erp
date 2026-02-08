@@ -94,7 +94,10 @@ export default function Attendance() {
                         <div className="space-y-2 relative">
                             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-400">Quick Actions</p>
                             <h2 className="text-2xl font-black">Daily Check-in</h2>
-                            <p className="text-gray-400 text-sm font-medium">Log your status for {new Date(selectedDate).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}</p>
+                            <p className="text-gray-400 text-sm font-medium">Log your status for {(() => {
+                                const d = new Date(selectedDate);
+                                return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
+                            })()}</p>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4 relative">
@@ -183,15 +186,15 @@ export default function Attendance() {
                                                         {(att.employee as Employee)?.firstName?.[0] || 'E'}
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs font-black text-gray-900">{(att.employee as Employee)?.firstName} {(att.employee as Employee)?.lastName}</p>
-                                                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-wider">{(att.employee as Employee)?.designation}</p>
+                                                        <p className="text-xs font-black text-gray-900">{(att.employee as Employee)?.firstName || 'Unknown'} {(att.employee as Employee)?.lastName || ''}</p>
+                                                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-wider">{(att.employee as Employee)?.designation || 'N/A'}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-4">
                                                 <span className={`px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-widest ${att.status === 'PRESENT' ? 'bg-emerald-50 text-emerald-600' :
-                                                        att.status === 'LATE' ? 'bg-amber-50 text-amber-600' :
-                                                            'bg-red-50 text-red-600'
+                                                    att.status === 'LATE' ? 'bg-amber-50 text-amber-600' :
+                                                        'bg-red-50 text-red-600'
                                                     }`}>
                                                     {att.status}
                                                 </span>

@@ -160,11 +160,10 @@ export default function Users() {
                                     </td>
                                     <td className="px-8 py-5">
                                         <p className="text-sm font-medium text-gray-500">
-                                            {new Date(u.createdAt).toLocaleDateString('en-IN', {
-                                                year: 'numeric',
-                                                month: 'short',
-                                                day: 'numeric'
-                                            })}
+                                            {(() => {
+                                                const d = new Date(u.createdAt);
+                                                return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
+                                            })()}
                                         </p>
                                     </td>
                                     <td className="px-8 py-5 text-right">

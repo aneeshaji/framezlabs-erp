@@ -25,12 +25,12 @@ export default function EnquiriesPage() {
         }
     };
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async (id: number) => {
         if (!window.confirm('Are you sure you want to delete this enquiry?')) return;
         try {
             await enquiryService.deleteEnquiry(id);
-            setEnquiries(enquiries.filter(e => e._id !== id));
-            if (selectedEnquiry?._id === id) setSelectedEnquiry(null);
+            setEnquiries(enquiries.filter(e => e.id !== id));
+            if (selectedEnquiry?.id === id) setSelectedEnquiry(null);
         } catch (error) {
             console.error('Failed to delete enquiry', error);
         }
@@ -62,11 +62,11 @@ export default function EnquiriesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
                     { label: 'Total Enquiries', value: enquiries.length, icon: MessageCircle, color: 'text-blue-600', bg: 'bg-blue-50' },
-                    { label: 'Today', value: enquiries.filter(e => e.createdAt && new Date(e.createdAt).toDateString() === new Date().toDateString()).length, icon: Clock, color: 'text-purple-600', bg: 'bg-purple-50' },
+                    { label: 'Today', value: enquiries.filter(e => e.created_at && new Date(e.created_at).toDateString() === new Date().toDateString()).length, icon: Clock, color: 'text-purple-600', bg: 'bg-purple-50' },
                     {
                         label: 'Last 7 Days', value: enquiries.filter(e => {
-                            if (!e.createdAt) return false;
-                            const date = new Date(e.createdAt);
+                            if (!e.created_at) return false;
+                            const date = new Date(e.created_at);
                             const sevenDaysAgo = new Date();
                             sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
                             return date >= sevenDaysAgo;
@@ -135,14 +135,19 @@ export default function EnquiriesPage() {
                             </thead>
                             <tbody className="divide-y divide-gray-100 italic-none">
                                 {filteredEnquiries.map(enquiry => (
-                                    <tr key={enquiry._id} className="hover:bg-gray-50 transition-colors">
+                                    <tr key={enquiry.id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4">
-                                            <span className="font-mono text-sm font-bold text-gray-400">#{enquiry._id?.slice(-8).toUpperCase()}</span>
+                                            <span className="font-mono text-sm font-bold text-gray-400">#{enquiry.id.toString().padStart(6, '0')}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="text-sm">
-                                                <p className="font-bold text-gray-900">{enquiry.createdAt ? new Date(enquiry.createdAt).toLocaleDateString() : '---'}</p>
-                                                <p className="text-gray-400 text-xs">{enquiry.createdAt ? new Date(enquiry.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</p>
+                                                <p className="font-bold text-gray-900">
+                                                    {enquiry.created_at ? (() => {
+                                                        const d = new Date(enquiry.created_at);
+                                                        return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
+                                                    })() : '---'}
+                                                </p>
+                                                <p className="text-gray-400 text-xs">{enquiry.created_at ? new Date(enquiry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</p>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
@@ -173,7 +178,7 @@ export default function EnquiriesPage() {
                                                 <Eye className="w-5 h-5" />
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(enquiry._id)}
+                                                onClick={() => handleDelete(enquiry.id)}
                                                 className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                                                 title="Delete"
                                             >
@@ -228,7 +233,10 @@ export default function EnquiriesPage() {
                                     <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Received On</label>
                                     <div className="flex items-center gap-2 text-gray-700 font-bold p-2 bg-gray-50 rounded-xl">
                                         <Calendar className="w-4 h-4 text-primary-500" />
-                                        {selectedEnquiry.createdAt ? new Date(selectedEnquiry.createdAt).toLocaleDateString() : 'N/A'}
+                                        {selectedEnquiry.created_at ? (() => {
+                                            const d = new Date(selectedEnquiry.created_at);
+                                            return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
+                                        })() : 'N/A'}
                                     </div>
                                 </div>
                             </div>

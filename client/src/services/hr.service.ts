@@ -30,7 +30,8 @@ const hrService = {
     // Employees
     getEmployees: async () => {
         const response = await axios.get(`${API_URL}/hr/employees`);
-        return response.data;
+        const data = response.data;
+        return Array.isArray(data) ? data : (data?.data || []);
     },
 
     createEmployee: async (data: any) => {
@@ -59,7 +60,8 @@ const hrService = {
         if (date) params.append('date', date);
         if (employeeId) params.append('employeeId', employeeId);
         const response = await axios.get(`${API_URL}/hr/attendance?${params.toString()}`);
-        return response.data;
+        const data = response.data;
+        return Array.isArray(data) ? data : (data?.data || []);
     }
 };
 

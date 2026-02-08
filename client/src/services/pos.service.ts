@@ -18,6 +18,8 @@ export interface Transaction {
   paymentMethod: string;
   customerName?: string;
   customerPhone?: string;
+  shippingAmount?: number;
+  shipping_amount?: number; // Backend returns snake_case
   notes?: string;
   createdAt?: string;
 }
@@ -29,7 +31,8 @@ const createTransaction = async (transactionData: Partial<Transaction>): Promise
 
 const getTransactions = async (): Promise<Transaction[]> => {
   const response = await api.get('/transactions');
-  return response.data;
+  const data = response.data;
+  return Array.isArray(data) ? data : (data?.data || []);
 };
 
 const posService = {

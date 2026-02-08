@@ -10,8 +10,8 @@ export default function Header() {
     const { unreadCount } = useNotifications();
     const [showNotifications, setShowNotifications] = useState(false);
 
-    const displayName = user ? `${user.user.firstName} ${user.user.lastName}` : 'Guest User';
-    const initial = user ? user.user.firstName.charAt(0).toUpperCase() : 'G';
+    const displayName = user?.user?.firstName ? `${user.user.firstName} ${user.user.lastName}` : 'Guest User';
+    const initial = user?.user?.firstName ? user.user.firstName.charAt(0).toUpperCase() : 'G';
 
     return (
         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 fixed top-0 right-0 left-64 z-10">

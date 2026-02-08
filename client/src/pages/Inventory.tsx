@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Plus, Search, Package, AlertCircle, Edit2, Trash2, Printer } from 'lucide-react';
+import { Plus, Search, Package, AlertCircle, Edit2, Trash2, Printer, Upload } from 'lucide-react';
 import inventoryService, { Product } from '../services/inventory.service';
 import ProductModal from '../components/inventory/ProductModal';
+import ImportProductsModal from '../components/modals/ImportProductsModal';
 import BarcodeLabel from '../components/printing/BarcodeLabel';
 import { useReactToPrint } from 'react-to-print';
 
@@ -10,7 +11,9 @@ export default function Inventory() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All');
+
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | undefined>();
 
     // For printing
@@ -47,8 +50,8 @@ export default function Inventory() {
 
     const handleSaveProduct = async (productData: Partial<Product>) => {
         try {
-            if (editingProduct?._id) {
-                await inventoryService.updateProduct(editingProduct._id, productData);
+            if (editingProduct?.id) {
+                await inventoryService.updateProduct(editingProduct.id, productData);
             } else {
                 await inventoryService.createProduct(productData);
             }
@@ -110,6 +113,13 @@ export default function Inventory() {
                 >
                     <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
                     New Product
+                </button>
+                <button
+                    onClick={() => setIsImportModalOpen(true)}
+                    className="ml-3 flex items-center gap-2 px-6 py-3 bg-white text-gray-700 font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-gray-50 border border-gray-200 shadow-sm transition-all active:scale-95 group"
+                >
+                    <Upload className="w-4 h-4" />
+                    Import
                 </button>
             </div>
 
@@ -181,6 +191,7 @@ export default function Inventory() {
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-gray-50/50">
+                                <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">#</th>
                                 <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Product</th>
                                 <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">SKU</th>
                                 <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Price</th>
@@ -191,20 +202,23 @@ export default function Inventory() {
                         <tbody className="divide-y divide-gray-50">
                             {loading ? (
                                 <tr>
-                                    <td colSpan={5} className="px-8 py-20 text-center">
+                                    <td colSpan={6} className="px-8 py-20 text-center">
                                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
                                     </td>
                                 </tr>
                             ) : filteredProducts.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="px-8 py-20 text-center space-y-4">
+                                    <td colSpan={6} className="px-8 py-20 text-center space-y-4">
                                         <Package className="w-12 h-12 text-gray-200 mx-auto" />
                                         <p className="text-sm font-black text-gray-900 uppercase tracking-widest">No products found</p>
                                     </td>
                                 </tr>
                             ) : (
-                                filteredProducts.map((product) => (
-                                    <tr key={product._id} className="hover:bg-gray-50/50 transition-colors group">
+                                filteredProducts.map((product, index) => (
+                                    <tr key={product.id} className="hover:bg-gray-50/50 transition-colors group">
+                                        <td className="px-8 py-5 text-xs font-bold text-gray-400">
+                                            {(index + 1).toString().padStart(2, '0')}
+                                        </td>
                                         <td className="px-8 py-5">
                                             <div className="flex items-center">
                                                 <div className="h-10 w-10 bg-gray-100 rounded-xl flex items-center justify-center font-black text-[10px] text-gray-500 border border-gray-100">
@@ -243,7 +257,7 @@ export default function Inventory() {
                                                     <Edit2 className="w-4 h-4" />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleDeleteProduct(product._id!)}
+                                                    onClick={() => handleDeleteProduct(product.id!)}
                                                     className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
                                                     title="Delete Product"
                                                 >
@@ -263,8 +277,18 @@ export default function Inventory() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleSaveProduct}
-                onDelete={editingProduct ? () => handleDeleteProduct(editingProduct._id!) : undefined}
+                onDelete={editingProduct ? () => handleDeleteProduct(editingProduct.id!) : undefined}
+
                 product={editingProduct}
+            />
+
+            <ImportProductsModal
+                isOpen={isImportModalOpen}
+                onClose={() => setIsImportModalOpen(false)}
+                onSuccess={() => {
+                    setIsImportModalOpen(false);
+                    fetchProducts();
+                }}
             />
 
             {/* Hidden Printing Container */}

@@ -167,7 +167,10 @@ export default function Orders() {
                                         <div>
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Due Date</p>
                                             <p className="text-sm font-bold text-gray-900">
-                                                {order.dueDate ? new Date(order.dueDate).toLocaleDateString() : 'N/A'}
+                                                {order.dueDate ? (() => {
+                                                    const d = new Date(order.dueDate);
+                                                    return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
+                                                })() : 'N/A'}
                                             </p>
                                         </div>
                                         <div>

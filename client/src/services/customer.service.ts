@@ -17,7 +17,8 @@ export interface Customer {
 const customerService = {
     getCustomers: async (): Promise<Customer[]> => {
         const response = await api.get('/customers');
-        return response.data;
+        const data = response.data;
+        return Array.isArray(data) ? data : (data?.data || []);
     },
 
     getCustomer: async (id: string): Promise<Customer> => {

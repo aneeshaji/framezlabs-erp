@@ -26,7 +26,8 @@ const financeService = {
 
     getExpenses: async (): Promise<Expense[]> => {
         const response = await api.get('/finance/expenses');
-        return response.data;
+        const data = response.data;
+        return Array.isArray(data) ? data : (data?.data || []);
     },
 
     createExpense: async (expense: Expense): Promise<Expense> => {

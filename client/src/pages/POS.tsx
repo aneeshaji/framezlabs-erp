@@ -21,6 +21,9 @@ export default function POS() {
     const [customerPhone, setCustomerPhone] = useState('');
     const [lastTransaction, setLastTransaction] = useState<Transaction | null>(null);
     const [showInvoice, setShowInvoice] = useState(false);
+    const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage');
+    const [discountValue, setDiscountValue] = useState(0);
+    const [shippingCharge, setShippingCharge] = useState(0);
     const searchInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -52,21 +55,21 @@ export default function POS() {
         if (product.stockLevel <= 0) return;
 
         setCart(prevCart => {
-            const existingItem = prevCart.find(item => item.productId === product._id);
+            const existingItem = prevCart.find(item => item.productId === product.id);
             if (existingItem) {
                 if (existingItem.quantity >= product.stockLevel) return prevCart;
                 return prevCart.map(item =>
-                    item.productId === product._id
+                    item.productId === product.id
                         ? { ...item, quantity: item.quantity + 1, subtotal: (item.quantity + 1) * item.price }
                         : item
                 );
             }
             return [...prevCart, {
-                productId: product._id!,
+                productId: product.id!,
                 name: product.name,
                 quantity: 1,
-                price: product.price,
-                subtotal: product.price
+                price: Number(product.price),
+                subtotal: Number(product.price)
             }];
         });
     };
@@ -76,7 +79,7 @@ export default function POS() {
             return prevCart.map(item => {
                 if (item.productId === productId) {
                     const newQty = Math.max(1, item.quantity + delta);
-                    const product = products.find(p => p._id === productId);
+                    const product = products.find(p => p.id === productId);
                     if (product && newQty > product.stockLevel && delta > 0) return item;
                     return { ...item, quantity: newQty, subtotal: newQty * item.price };
                 }
@@ -90,7 +93,29 @@ export default function POS() {
     };
 
     const calculateTotal = () => {
-        return cart.reduce((sum, item) => sum + item.subtotal, 0);
+        const subtotal = cart.reduce((sum, item) => sum + Number(item.subtotal), 0);
+        let discountAmount = 0;
+
+        if (discountType === 'percentage') {
+            discountAmount = subtotal * (discountValue / 100);
+        } else {
+            discountAmount = discountValue;
+        }
+
+        const total = Math.max(0, subtotal - discountAmount + Number(shippingCharge));
+        return total;
+    };
+
+    const getSubtotal = () => {
+        return cart.reduce((sum, item) => sum + Number(item.subtotal), 0);
+    };
+
+    const getDiscountAmount = () => {
+        const subtotal = getSubtotal();
+        if (discountType === 'percentage') {
+            return subtotal * (discountValue / 100);
+        }
+        return Math.min(discountValue, subtotal);
     };
 
     const handleCheckout = async () => {
@@ -104,13 +129,17 @@ export default function POS() {
                 customerName,
                 customerPhone,
                 tax: 0,
-                discount: 0
+                discount: getDiscountAmount(),
+                shippingAmount: Number(shippingCharge),
             });
             setLastTransaction(result);
             setShowInvoice(true);
             setCart([]);
             setCustomerName('');
             setCustomerPhone('');
+            setDiscountType('percentage');
+            setDiscountValue(0);
+            setShippingCharge(0);
             fetchProducts(); // Refresh stock levels
             fetchCustomers(); // Refresh customer data (totalSpent might have changed)
         } catch (error) {
@@ -157,7 +186,7 @@ export default function POS() {
                         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                             {filteredProducts.map(product => (
                                 <button
-                                    key={product._id}
+                                    key={product.id}
                                     onClick={() => addToCart(product)}
                                     disabled={product.stockLevel <= 0}
                                     className={clsx(
@@ -218,10 +247,11 @@ export default function POS() {
                             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
 
                             {/* Autocomplete Results */}
-                            {showCustomerResults && customerSearch.length >= 2 && (
+                            {showCustomerResults && (
                                 <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl max-h-48 overflow-y-auto overflow-x-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                                     {allCustomers
                                         .filter(c =>
+                                            !customerSearch ||
                                             c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
                                             c.phone.includes(customerSearch)
                                         )
@@ -331,9 +361,9 @@ export default function POS() {
                     )}
                 </div>
 
-                <div className="p-6 bg-gray-50 border-t border-gray-100 space-y-4">
+                <div className="p-4 bg-gray-50 border-t border-gray-100 space-y-3">
                     <div className="space-y-2">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Payment Method</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Payment Method</label>
                         <div className="grid grid-cols-3 gap-2">
                             {[
                                 { id: 'Cash', icon: Banknote },
@@ -344,39 +374,114 @@ export default function POS() {
                                     key={method.id}
                                     onClick={() => setPaymentMethod(method.id)}
                                     className={clsx(
-                                        "flex flex-col items-center justify-center p-2 rounded-xl border text-[10px] font-bold transition-all",
+                                        "flex flex-col items-center justify-center p-2 rounded-lg border text-[10px] font-bold transition-all",
                                         paymentMethod === method.id
-                                            ? "bg-primary-600 border-primary-600 text-white shadow-md shadow-primary-200"
+                                            ? "bg-primary-600 border-primary-600 text-white shadow-sm"
                                             : "bg-white border-gray-200 text-gray-500 hover:border-primary-300"
                                     )}
                                 >
-                                    <method.icon className="w-5 h-5 mb-1" />
+                                    <method.icon className="w-4 h-4 mb-0.5" />
                                     {method.id}
                                 </button>
                             ))}
                         </div>
                     </div>
 
-                    <div className="pt-4 border-t border-gray-200">
-                        <div className="flex justify-between items-center mb-4">
-                            <span className="text-gray-500 font-medium text-lg">Grand Total</span>
-                            <span className="text-3xl font-black text-gray-900">₹{calculateTotal().toLocaleString()}</span>
+                    {/* Discount & Shipping Grid */}
+                    <div className="grid grid-cols-2 gap-3">
+                        {/* Discount Section */}
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Discount</label>
+                            <div className="flex gap-1 mb-1">
+                                <button
+                                    onClick={() => setDiscountType('percentage')}
+                                    className={clsx(
+                                        "flex-1 py-1 rounded border text-[10px] font-bold transition-all",
+                                        discountType === 'percentage' ? "bg-primary-600 border-primary-600 text-white" : "bg-white border-gray-200 text-gray-500"
+                                    )}
+                                >
+                                    %
+                                </button>
+                                <button
+                                    onClick={() => setDiscountType('fixed')}
+                                    className={clsx(
+                                        "flex-1 py-1 rounded border text-[10px] font-bold transition-all",
+                                        discountType === 'fixed' ? "bg-primary-600 border-primary-600 text-white" : "bg-white border-gray-200 text-gray-500"
+                                    )}
+                                >
+                                    ₹
+                                </button>
+                            </div>
+                            <input
+                                type="number"
+                                min="0"
+                                max={discountType === 'percentage' ? 100 : getSubtotal()}
+                                value={discountValue}
+                                onChange={(e) => setDiscountValue(Math.max(0, Number(e.target.value)))}
+                                className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded-lg text-xs focus:ring-1 focus:ring-primary-500 focus:outline-none"
+                            />
+                        </div>
+
+                        {/* Shipping Section */}
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Shipping</label>
+                            <div className="h-[26px]"></div> {/* Spacer to align with discount buttons */}
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={shippingCharge}
+                                    onChange={(e) => setShippingCharge(Math.max(0, Number(e.target.value)))}
+                                    placeholder="0"
+                                    className="w-full pl-6 pr-2 py-1.5 bg-white border border-gray-200 rounded-lg text-xs focus:ring-1 focus:ring-primary-500 focus:outline-none"
+                                />
+                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">₹</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="pt-3 border-t border-gray-200">
+                        <div className="space-y-1 mb-3">
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-gray-500">Subtotal</span>
+                                <span className="font-bold text-gray-700">₹{getSubtotal().toLocaleString()}</span>
+                            </div>
+                            {(discountValue > 0 || shippingCharge > 0) && (
+                                <>
+                                    {discountValue > 0 && (
+                                        <div className="flex justify-between items-center text-xs">
+                                            <span className="text-green-600">Discount</span>
+                                            <span className="font-bold text-green-600">-₹{getDiscountAmount().toLocaleString()}</span>
+                                        </div>
+                                    )}
+                                    {shippingCharge > 0 && (
+                                        <div className="flex justify-between items-center text-xs">
+                                            <span className="text-gray-500">Shipping</span>
+                                            <span className="font-bold text-gray-700">+₹{shippingCharge.toLocaleString()}</span>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                            <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                                <span className="text-gray-500 font-bold text-sm">Total</span>
+                                <span className="text-2xl font-black text-gray-900">₹{calculateTotal().toLocaleString()}</span>
+                            </div>
                         </div>
                         <button
                             disabled={cart.length === 0 || submitting}
                             onClick={handleCheckout}
                             className={clsx(
-                                "w-full py-4 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-3 shadow-lg",
+                                "w-full py-3 rounded-xl font-black text-base transition-all flex items-center justify-center gap-2 shadow-md",
                                 cart.length === 0 || submitting
                                     ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                                     : "bg-primary-600 text-white hover:bg-primary-700 active:scale-95 shadow-primary-200"
                             )}
                         >
                             {submitting ? (
-                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                             ) : (
                                 <>
-                                    <ShoppingCart className="w-6 h-6" />
+                                    <ShoppingCart className="w-5 h-5" />
                                     Checkout
                                 </>
                             )}

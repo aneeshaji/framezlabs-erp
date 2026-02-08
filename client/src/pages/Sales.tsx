@@ -44,8 +44,8 @@ export default function SalesHistory() {
         t.customerPhone?.includes(searchTerm)
     );
 
-    const totalSales = filteredTransactions.reduce((sum, t) => sum + t.totalAmount, 0);
-    const totalProfit = filteredTransactions.reduce((sum, t) => sum + (t.profit || 0), 0);
+    const totalSales = filteredTransactions.reduce((sum, t) => sum + Number(t.totalAmount), 0);
+    const totalProfit = filteredTransactions.reduce((sum, t) => sum + Number(t.profit || 0), 0);
     const totalOrders = filteredTransactions.length;
 
     return (
@@ -154,7 +154,10 @@ export default function SalesHistory() {
                                         <td className="px-6 py-4">
                                             <div className="text-sm">
                                                 <p className="font-bold text-gray-700">
-                                                    {new Date(transaction.createdAt || '').toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                    {(() => {
+                                                        const d = new Date(transaction.createdAt || '');
+                                                        return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
+                                                    })()}
                                                 </p>
                                                 <p className="text-[10px] font-bold text-gray-400 uppercase">
                                                     {new Date(transaction.createdAt || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

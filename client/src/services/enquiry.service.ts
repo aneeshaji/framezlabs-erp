@@ -1,13 +1,13 @@
 import api from './api';
 
 export interface Enquiry {
-    _id: string;
+    id: number;
     name: string;
     phone: string;
     message: string;
     category: string;
-    createdAt: string;
-    updatedAt: string;
+    created_at: string;
+    updated_at: string;
 }
 
 const getEnquiries = async (): Promise<Enquiry[]> => {
@@ -15,12 +15,12 @@ const getEnquiries = async (): Promise<Enquiry[]> => {
     return response.data;
 };
 
-const getEnquiry = async (id: string): Promise<Enquiry> => {
+const getEnquiry = async (id: number): Promise<Enquiry> => {
     const response = await api.get(`/enquiries/${id}`);
     return response.data;
 };
 
-const deleteEnquiry = async (id: string): Promise<void> => {
+const deleteEnquiry = async (id: number): Promise<void> => {
     await api.delete(`/enquiries/${id}`);
 };
 

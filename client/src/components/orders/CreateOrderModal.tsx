@@ -38,16 +38,16 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }: Cr
 
     const addToCart = (product: Product) => {
         setCart(prev => {
-            const existing = prev.find(item => item.product === product._id);
+            const existing = prev.find(item => item.product === product.id);
             if (existing) {
                 return prev.map(item =>
-                    item.product === product._id
+                    item.product === product.id
                         ? { ...item, quantity: item.quantity + 1, subtotal: (item.quantity + 1) * item.price }
                         : item
                 );
             }
             return [...prev, {
-                product: product._id,
+                product: product.id,
                 name: product.name,
                 quantity: 1,
                 price: product.price,
@@ -142,7 +142,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }: Cr
                         <div className="flex-1 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
                             {filteredProducts.map(product => (
                                 <button
-                                    key={product._id}
+                                    key={product.id}
                                     onClick={() => addToCart(product)}
                                     className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-primary-50 border border-transparent hover:border-primary-100 transition-all group"
                                 >

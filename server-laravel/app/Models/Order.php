@@ -9,6 +9,7 @@ class Order extends Model
     protected $fillable = [
         'customerName',
         'customerPhone',
+        'customerEmail',
         'totalAmount',
         'status',
         'orderType',
@@ -16,12 +17,14 @@ class Order extends Model
         'notes',
         'paymentMethod',
         'isPaid',
+        'shipping_amount',
     ];
 
     protected $casts = [
         'dueDate' => 'datetime',
         'isPaid' => 'boolean',
         'totalAmount' => 'decimal:2',
+        'shipping_amount' => 'decimal:2',
     ];
 
     public function items()

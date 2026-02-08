@@ -2,7 +2,7 @@ import api from './api';
 
 // Interface for Product data
 export interface Product {
-  _id?: string;
+  id?: string;
   name: string;
   sku: string;
   description?: string;
@@ -20,7 +20,8 @@ export interface Product {
 
 const getProducts = async (): Promise<Product[]> => {
   const response = await api.get('/products');
-  return response.data;
+  const data = response.data;
+  return Array.isArray(data) ? data : (data?.data || []);
 };
 
 const getProduct = async (id: string): Promise<Product> => {
@@ -42,12 +43,25 @@ const deleteProduct = async (id: string): Promise<void> => {
   await api.delete(`/products/${id}`);
 };
 
+const importProducts = async (file: File): Promise<any> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const response = await api.post('/products/import', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
 const inventoryService = {
   getProducts,
   getProduct,
   createProduct,
   updateProduct,
   deleteProduct,
+  importProducts,
 };
 
 export default inventoryService;

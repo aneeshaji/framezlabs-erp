@@ -74,8 +74,8 @@ export default function Reports() {
 
     // 2. Summary Cards
     const summary = useMemo(() => {
-        const revenue = filteredTransactions.reduce((sum, t) => sum + t.totalAmount, 0);
-        const profit = filteredTransactions.reduce((sum, t) => sum + (t.profit || 0), 0);
+        const revenue = filteredTransactions.reduce((sum, t) => sum + Number(t.totalAmount), 0);
+        const profit = filteredTransactions.reduce((sum, t) => sum + Number(t.profit || 0), 0);
         const orders = filteredTransactions.length;
         const avgOrderValue = orders > 0 ? revenue / orders : 0;
         const newCustomers = filteredCustomers.length;
@@ -86,7 +86,7 @@ export default function Reports() {
     // 3. Sales by Category (Pie Chart)
     const categoryData = useMemo(() => {
         const categoryMap: Record<string, number> = {};
-        const productCategoryMap = new Map(products.map(p => [p._id, p.category]));
+        const productCategoryMap = new Map(products.map(p => [p.id, p.category]));
 
         // Fallback for products deleted or not found
         const UNKNOWN_CATEGORY = 'Uncategorized';
@@ -94,7 +94,7 @@ export default function Reports() {
         filteredTransactions.forEach(t => {
             t.items.forEach(item => {
                 const category = productCategoryMap.get(item.productId) || UNKNOWN_CATEGORY;
-                categoryMap[category] = (categoryMap[category] || 0) + item.subtotal;
+                categoryMap[category] = (categoryMap[category] || 0) + Number(item.subtotal);
             });
         });
 
@@ -138,8 +138,8 @@ export default function Reports() {
             if (!t.createdAt) return;
             const dateStr = format(new Date(t.createdAt), 'yyyy-MM-dd');
             if (dataMap[dateStr]) {
-                dataMap[dateStr].revenue += t.totalAmount;
-                dataMap[dateStr].profit += (t.profit || 0);
+                dataMap[dateStr].revenue += Number(t.totalAmount);
+                dataMap[dateStr].profit += Number(t.profit || 0);
             }
         });
 

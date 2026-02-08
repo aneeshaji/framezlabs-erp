@@ -169,7 +169,7 @@ export default function Sidebar() {
                 {user?.user && (
                     <div className="px-3 py-3 mb-2 bg-gray-50 rounded-2xl border border-gray-100">
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Signed in as</p>
-                        <p className="text-xs font-black text-gray-900 truncate">{user.user.firstName} {user.user.lastName}</p>
+                        <p className="text-xs font-black text-gray-900 truncate">{user.user.firstName || 'User'} {user.user.lastName || ''}</p>
                         <div className="mt-1.5 flex items-center gap-1">
                             <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
                             <span className="text-[10px] font-bold text-primary-600 uppercase tracking-wider">{user.user.role}</span>

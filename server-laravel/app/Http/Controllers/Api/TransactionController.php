@@ -25,6 +25,7 @@ class TransactionController extends Controller
             'items.*.quantity' => 'required|integer|min:1',
             'totalAmount' => 'required|numeric',
             'paymentMethod' => 'required|string',
+            'shippingAmount' => 'nullable|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -42,6 +43,7 @@ class TransactionController extends Controller
                 'customerPhone' => $request->customerPhone,
                 'notes' => $request->notes,
                 'createdBy' => $request->user()->id,
+                'shipping_amount' => $request->shippingAmount ?? 0,
             ]);
 
             foreach ($request->items as $itemData) {

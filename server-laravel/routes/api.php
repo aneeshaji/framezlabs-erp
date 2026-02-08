@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\SettingsController;
 use Illuminate\Support\Facades\Route;
 
 // Public Auth Routes
@@ -39,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/{id}', [ProductController::class, 'update']);
         Route::delete('/{id}', [ProductController::class, 'destroy']);
         Route::patch('/{id}/stock', [ProductController::class, 'updateStock']);
+        Route::post('/import', [ProductController::class, 'import']);
     });
 
     Route::apiResource('customers', CustomerController::class);
@@ -49,7 +51,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('notifications', NotificationController::class)->only(['index', 'destroy']);
     Route::patch('notifications/{id}/read', [NotificationController::class, 'markAsRead']);
     
-    Route::apiResource('expenses', ExpenseController::class);
+    Route::group(['prefix' => 'finance'], function () {
+        Route::apiResource('expenses', ExpenseController::class);
+    });
+
+    Route::get('/settings', [SettingsController::class, 'index']);
+    Route::patch('/settings', [SettingsController::class, 'update']);
     
     Route::group(['prefix' => 'transactions'], function () {
         Route::get('/', [TransactionController::class, 'index']);

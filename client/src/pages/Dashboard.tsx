@@ -35,8 +35,8 @@ export default function Dashboard() {
     };
 
     // Metrics Calculation
-    const totalRevenue = transactions.reduce((sum, t) => sum + t.totalAmount, 0);
-    const totalProfit = transactions.reduce((sum, t) => sum + (t.profit || 0), 0);
+    const totalRevenue = transactions.reduce((sum, t) => sum + Number(t.totalAmount), 0);
+    const totalProfit = transactions.reduce((sum, t) => sum + Number(t.profit || 0), 0);
     const lowStockCount = products.filter(p => p.stockLevel <= (p.minStockLevel || 5)).length;
     const totalOrders = transactions.length;
 

@@ -8,6 +8,9 @@ use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderCreated;
+use App\Mail\OrderStatusUpdated;
 
 class OrderController extends Controller
 {
@@ -24,6 +27,7 @@ class OrderController extends Controller
             'items' => 'required|array',
             'totalAmount' => 'required|numeric',
             'paymentMethod' => 'required|string',
+            'shippingAmount' => 'nullable|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -41,6 +45,7 @@ class OrderController extends Controller
                 'notes' => $request->notes,
                 'paymentMethod' => $request->paymentMethod,
                 'isPaid' => $request->isPaid ?? false,
+                'shipping_amount' => $request->shippingAmount ?? 0,
             ]);
 
             foreach ($request->items as $itemData) {
@@ -53,6 +58,15 @@ class OrderController extends Controller
                     'customNotes' => $itemData['customNotes'] ?? null,
                     'subtotal' => $itemData['subtotal'],
                 ]);
+            }
+
+            // Send order confirmation email
+            if ($order->customerEmail) {
+                try {
+                    Mail::to($order->customerEmail)->send(new OrderCreated($order->load('items')));
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send order confirmation email: ' . $e->getMessage());
+                }
             }
 
             return response()->json($order->load('items'), 201);
@@ -75,8 +89,18 @@ class OrderController extends Controller
             return response()->json(['message' => 'Order not found'], 404);
         }
 
+        $previousStatus = $order->status;
         $order->status = $request->status;
         $order->save();
+
+        // Send status update email
+        if ($order->customerEmail) {
+            try {
+                Mail::to($order->customerEmail)->send(new OrderStatusUpdated($order->load('items'), $previousStatus));
+            } catch (\Exception $e) {
+                \Log::error('Failed to send order status update email: ' . $e->getMessage());
+            }
+        }
 
         return response()->json($order);
     }

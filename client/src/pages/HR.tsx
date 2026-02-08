@@ -101,8 +101,8 @@ export default function HR() {
                             key={status}
                             onClick={() => setStatusFilter(status)}
                             className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${statusFilter === status
-                                    ? 'bg-white text-primary-600 shadow-sm'
-                                    : 'text-gray-500 hover:text-gray-700'
+                                ? 'bg-white text-primary-600 shadow-sm'
+                                : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
                             {status}
@@ -126,7 +126,7 @@ export default function HR() {
                                     </div>
                                 </div>
                                 <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-tighter ${emp.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600' :
-                                        emp.status === 'ON_LEAVE' ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-500'
+                                    emp.status === 'ON_LEAVE' ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-500'
                                     }`}>
                                     {emp.status}
                                 </div>
@@ -156,7 +156,12 @@ export default function HR() {
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="p-3 bg-gray-50 rounded-2xl">
                                     <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Joined</p>
-                                    <p className="text-xs font-black text-gray-700">{new Date(emp.dateOfJoining).toLocaleDateString()}</p>
+                                    <p className="text-xs font-black text-gray-700">
+                                        {(() => {
+                                            const d = new Date(emp.dateOfJoining);
+                                            return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
+                                        })()}
+                                    </p>
                                 </div>
                                 <div className="p-3 bg-gray-50 rounded-2xl">
                                     <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Emp ID</p>
