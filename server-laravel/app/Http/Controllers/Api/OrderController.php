@@ -24,6 +24,7 @@ class OrderController extends Controller
         $validator = Validator::make($request->all(), [
             'customerName' => 'required|string',
             'customerPhone' => 'required|string',
+            'customerEmail' => 'nullable|email',
             'items' => 'required|array',
             'totalAmount' => 'required|numeric',
             'paymentMethod' => 'required|string',
@@ -38,6 +39,7 @@ class OrderController extends Controller
             $order = Order::create([
                 'customerName' => $request->customerName,
                 'customerPhone' => $request->customerPhone,
+                'customerEmail' => $request->customerEmail,
                 'totalAmount' => $request->totalAmount,
                 'status' => $request->status ?? 'PENDING',
                 'orderType' => $request->orderType ?? 'RETAIL',

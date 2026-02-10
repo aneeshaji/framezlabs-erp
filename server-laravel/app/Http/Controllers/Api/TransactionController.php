@@ -79,4 +79,33 @@ class TransactionController extends Controller
         }
         return response()->json($transaction);
     }
+    public function destroy($id)
+    {
+        return DB::transaction(function () use ($id) {
+            $transaction = Transaction::with('items')->find($id);
+
+            if (!$transaction) {
+                return response()->json(['message' => 'Transaction not found'], 404);
+            }
+
+            // Restock items
+            foreach ($transaction->items as $item) {
+                if ($item->product_id) {
+                    $product = Product::find($item->product_id);
+                    if ($product) {
+                        $product->stockLevel += $item->quantity;
+                        $product->save();
+                    }
+                }
+            }
+
+            // Delete items
+            $transaction->items()->delete();
+
+            // Delete transaction
+            $transaction->delete();
+
+            return response()->json(['message' => 'Transaction deleted successfully']);
+        });
+    }
 }
