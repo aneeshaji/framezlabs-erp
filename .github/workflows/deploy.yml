@@ -1,4 +1,4 @@
-﻿name: Deploy to cPanel — erp.framezlabs.store
+name: Deploy to cPanel — erp.framezlabs.store
 
 on:
   push:
@@ -104,20 +104,31 @@ jobs:
     needs: [deploy-frontend, deploy-backend]
 
     steps:
+      - name: Check SSH secrets are configured
+        id: check-ssh
+        run: |
+          if [ -z "${{ secrets.SSH_HOST }}" ]; then
+            echo "SSH_HOST secret not set — skipping post-deploy SSH tasks."
+            echo "Please add SSH_HOST, SSH_USERNAME, SSH_PASSWORD, SSH_PORT"
+            echo "to GitHub → Settings → Secrets → Actions"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: SSH — composer install + artisan cache + migrate
+        if: steps.check-ssh.outputs.skip == 'false'
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
-          # Increase timeout — composer install can take a few minutes
           command_timeout: 10m
           script: |
             cd ~/erp.framezlabs.store
 
             # Install/update composer dependencies on the server
-            # This is faster and more reliable than FTP-ing vendor/
             composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
             # Clear stale caches
