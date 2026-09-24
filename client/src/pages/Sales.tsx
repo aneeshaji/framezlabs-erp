@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, ReceiptText, ShoppingBag, Calendar, TrendingUp, Eye, X } from 'lucide-react';
 import posService, { Transaction } from '../services/pos.service';
 import InvoiceModal from '../components/modals/InvoiceModal';
@@ -78,18 +78,9 @@ export default function SalesHistory() {
     const [preset, setPreset]     = useState<Preset>('month');
     const [dateFrom, setDateFrom] = useState(toYMD(new Date(new Date().getFullYear(), new Date().getMonth(), 1)));
     const [dateTo, setDateTo]     = useState(toYMD(new Date()));
-    const dropRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         fetchTransactions();
-    }, []);
-
-    useEffect(() => {
-        const handler = (e: MouseEvent) => {
-            if (dropRef.current && !dropRef.current.contains(e.target as Node)) setShowDropdown(false);
-        };
-        document.addEventListener('mousedown', handler);
-        return () => document.removeEventListener('mousedown', handler);
     }, []);
 
     const fetchTransactions = async () => {
