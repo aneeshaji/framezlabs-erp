@@ -4,6 +4,25 @@ import posService, { Transaction } from '../services/pos.service';
 import InvoiceModal from '../components/modals/InvoiceModal';
 import { useAuth } from '../context/AuthContext';
 
+// Safely format a date string — returns '—' for invalid/missing dates
+const formatDate = (raw?: string) => {
+    if (!raw) return { date: '—', time: '—' };
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) return { date: '—', time: '—' };
+    const date = `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
+    const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return { date, time };
+};
+
+// Format transaction ID for display
+const formatId = (id?: string) => {
+    if (!id) return 'N/A';
+    // Short numeric ID (Laravel integer)
+    if (/^\d+$/.test(id)) return `#${id.padStart(4, '0')}`;
+    // MongoDB ObjectId — show last 8 chars
+    return `#${id.slice(-8).toUpperCase()}`;
+};
+
 export default function SalesHistory() {
     const { user } = useAuth();
     const isAdmin = user?.user?.role === 'ADMIN';
@@ -148,19 +167,16 @@ export default function SalesHistory() {
                                     <tr key={transaction._id} className="hover:bg-gray-50/50 transition-colors group">
                                         <td className="px-6 py-4">
                                             <span className="font-black text-gray-900 group-hover:text-primary-600 transition-colors">
-                                                #{transaction._id?.slice(-8).toUpperCase()}
+                                                {formatId(transaction._id)}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="text-sm">
                                                 <p className="font-bold text-gray-700">
-                                                    {(() => {
-                                                        const d = new Date(transaction.createdAt || '');
-                                                        return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
-                                                    })()}
+                                                    {formatDate(transaction.createdAt).date}
                                                 </p>
                                                 <p className="text-[10px] font-bold text-gray-400 uppercase">
-                                                    {new Date(transaction.createdAt || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    {formatDate(transaction.createdAt).time}
                                                 </p>
                                             </div>
                                         </td>

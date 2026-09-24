@@ -9,7 +9,8 @@ export interface TransactionItem {
 }
 
 export interface Transaction {
-  _id?: string;
+  _id?: string;         // normalized from Laravel's numeric `id`
+  id?: number | string; // raw Laravel id
   items: TransactionItem[];
   totalAmount: number;
   profit?: number;
@@ -19,9 +20,10 @@ export interface Transaction {
   customerName?: string;
   customerPhone?: string;
   shippingAmount?: number;
-  shipping_amount?: number; // Backend returns snake_case
+  shipping_amount?: number;
   notes?: string;
-  createdAt?: string;
+  createdAt?: string;   // normalized from Laravel's `created_at`
+  created_at?: string;  // raw Laravel timestamp
 }
 
 const createTransaction = async (transactionData: Partial<Transaction>): Promise<Transaction> => {
@@ -32,7 +34,15 @@ const createTransaction = async (transactionData: Partial<Transaction>): Promise
 const getTransactions = async (): Promise<Transaction[]> => {
   const response = await api.get('/transactions');
   const data = response.data;
-  return Array.isArray(data) ? data : (data?.data || []);
+  const list: Transaction[] = Array.isArray(data) ? data : (data?.data || []);
+
+  // Normalize Laravel's field names to what the frontend expects:
+  // `id` (integer) → `_id` (string), `created_at` → `createdAt`
+  return list.map((t: any) => ({
+    ...t,
+    _id: t._id ?? String(t.id ?? ''),
+    createdAt: t.createdAt ?? t.created_at ?? '',
+  }));
 };
 
 const posService = {
