@@ -31,10 +31,11 @@ jobs:
 
       - name: Install dependencies
         working-directory: client
-        # Use npm install (not npm ci) because package-lock.json was generated on
-        # Windows and is missing Linux-specific optional deps like
-        # @rollup/rollup-linux-x64-gnu. npm install resolves them fresh on the runner.
-        run: npm install
+        # Delete the Windows-generated lockfile so npm resolves Linux-specific
+        # optional deps (e.g. @rollup/rollup-linux-x64-gnu) from scratch.
+        run: |
+          rm -f package-lock.json
+          npm install
 
       - name: Build frontend
         working-directory: client
