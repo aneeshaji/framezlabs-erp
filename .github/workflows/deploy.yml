@@ -1,4 +1,4 @@
-﻿name: Deploy to cPanel — erp.framezlabs.store
+name: Deploy to cPanel — erp.framezlabs.store
 
 on:
   push:
@@ -28,12 +28,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: client/package-lock.json
 
       - name: Install dependencies
         working-directory: client
-        run: npm ci
+        # Use npm install (not npm ci) because package-lock.json was generated on
+        # Windows and is missing Linux-specific optional deps like
+        # @rollup/rollup-linux-x64-gnu. npm install resolves them fresh on the runner.
+        run: npm install
 
       - name: Build frontend
         working-directory: client
