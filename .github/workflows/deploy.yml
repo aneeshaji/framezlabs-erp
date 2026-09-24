@@ -37,8 +37,8 @@ jobs:
 
       - name: Build frontend
         working-directory: client
-        env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+        # Vite automatically loads .env.production during build
+        # (no need to inject VITE_API_URL as a secret — .env.production has the correct URL)
         run: npm run build
 
       - name: FTP Deploy → erp.framezlabs.store/public/
