@@ -100,7 +100,6 @@ export default function SalesHistory() {
             const range = getPresetRange(p);
             setDateFrom(range.from);
             setDateTo(range.to);
-            setShowDropdown(false);
         }
     };
 
