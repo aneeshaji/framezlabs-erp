@@ -25,6 +25,7 @@ export interface Transaction {
   createdAt?: string;   // normalized from Laravel's `created_at`
   created_at?: string;  // raw Laravel timestamp
   saleDate?: string;    // user-selected sale date (YYYY-MM-DD)
+  isPaid?: boolean;     // payment status — true = PAID, false = UNPAID
 }
 
 const createTransaction = async (transactionData: Partial<Transaction>): Promise<Transaction> => {

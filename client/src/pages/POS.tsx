@@ -30,6 +30,7 @@ export default function POS() {
     const [discountValue, setDiscountValue] = useState(0);
     const [shippingCharge, setShippingCharge] = useState(0);
     const [saleDate, setSaleDate] = useState(() => new Date().toISOString().slice(0, 10));
+    const [isPaid, setIsPaid] = useState(true);
 
     const searchRef = useRef<HTMLInputElement>(null);
     const customerBoxRef = useRef<HTMLDivElement>(null);
@@ -113,6 +114,7 @@ export default function POS() {
                 discount: discountAmt,
                 shippingAmount: Number(shippingCharge),
                 saleDate,
+                isPaid,
             });
             setLastTransaction(result);
             setShowInvoice(true);
@@ -120,6 +122,7 @@ export default function POS() {
             setCustomerName(''); setCustomerPhone(''); setCustomerSearch('');
             setDiscountType('percentage'); setDiscountValue(0); setShippingCharge(0);
             setSaleDate(new Date().toISOString().slice(0, 10));
+            setIsPaid(true);
             fetchProducts(); fetchCustomers();
         } catch (e) {
             console.error('Checkout failed', e);
@@ -395,6 +398,33 @@ export default function POS() {
 
                 {/* Footer */}
                 <div className="flex-shrink-0 border-t border-gray-100 bg-gray-50 px-4 py-3 space-y-3">
+
+                    {/* Paid / Unpaid toggle */}
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setIsPaid(true)}
+                            className={clsx(
+                                'flex-1 py-2 rounded-xl text-xs font-black transition-all border-2',
+                                isPaid
+                                    ? 'bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-100'
+                                    : 'bg-white border-gray-200 text-gray-400 hover:border-emerald-300 hover:text-emerald-500'
+                            )}
+                        >
+                            ✓ PAID
+                        </button>
+                        <button
+                            onClick={() => setIsPaid(false)}
+                            className={clsx(
+                                'flex-1 py-2 rounded-xl text-xs font-black transition-all border-2',
+                                !isPaid
+                                    ? 'bg-red-500 border-red-500 text-white shadow-md shadow-red-100'
+                                    : 'bg-white border-gray-200 text-gray-400 hover:border-red-300 hover:text-red-500'
+                            )}
+                        >
+                            ✗ UNPAID
+                        </button>
+                    </div>
+
                     <div>
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Payment</p>
                         <div className="grid grid-cols-3 gap-1.5">

@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+﻿import { useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { X, Printer } from 'lucide-react';
 import { Transaction } from '../../services/pos.service';
@@ -11,6 +11,7 @@ interface InvoiceModalProps {
 
 const InvoiceModal: React.FC<InvoiceModalProps> = ({ transaction, isOpen, onClose }) => {
     const contentRef = useRef<HTMLDivElement>(null);
+    const isPaid = transaction?.isPaid !== false; // default true
 
     const handlePrint = useReactToPrint({
         contentRef: contentRef,
@@ -31,8 +32,12 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ transaction, isOpen, onClos
                         <h2 className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
                             Invoice #{transaction._id?.slice(-8).toUpperCase() || 'DRAFT'}
                         </h2>
-                        <span className="px-3 py-1 bg-green-50 text-green-600 text-[10px] font-black uppercase tracking-widest rounded-full">
-                            Standard
+                        <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full ${
+                            isPaid
+                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                                : 'bg-red-50 text-red-600 border border-red-200'
+                        }`}>
+                            {isPaid ? '✓ PAID' : '✗ UNPAID'}
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -56,9 +61,33 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ transaction, isOpen, onClos
                 <div className="p-8 md:p-12 overflow-y-auto flex-1 bg-gray-50/30">
                     <div
                         ref={contentRef}
-                        className="bg-white mx-auto shadow-sm p-[12mm] w-[210mm] text-gray-800 font-sans relative"
+                        className="bg-white mx-auto shadow-sm p-[12mm] w-[210mm] text-gray-800 font-sans relative overflow-hidden"
                         id="printable-invoice"
                     >
+                        {/* ── WATERMARK ──────────────────────────────────── */}
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%) rotate(-45deg)',
+                                fontSize: '120px',
+                                fontWeight: 900,
+                                letterSpacing: '0.1em',
+                                opacity: 0.055,
+                                userSelect: 'none',
+                                pointerEvents: 'none',
+                                whiteSpace: 'nowrap',
+                                color: isPaid ? '#10b981' : '#ef4444',
+                                zIndex: 0,
+                            }}
+                        >
+                            {isPaid ? 'PAID' : 'UNPAID'}
+                        </div>
+
+                        {/* All invoice content sits above the watermark */}
+                        <div style={{ position: 'relative', zIndex: 1 }}>
+
                         {/* Invoice Header */}
                         <div className="flex justify-between items-start mb-6">
                             <div className="w-48">
@@ -92,11 +121,19 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ transaction, isOpen, onClos
                                 <div className="text-sm space-y-1">
                                     <div className="flex justify-end gap-4">
                                         <span className="text-gray-400 font-bold uppercase text-[10px]">Date:</span>
-                                        <span className="font-black text-gray-800">{new Date(transaction.createdAt || new Date()).toLocaleDateString()}</span>
+                                        <span className="font-black text-gray-800">
+                                            {new Date(transaction.saleDate || transaction.createdAt || new Date()).toLocaleDateString()}
+                                        </span>
                                     </div>
                                     <div className="flex justify-end gap-4">
                                         <span className="text-gray-400 font-bold uppercase text-[10px]">Payment:</span>
                                         <span className="font-black text-primary-600 uppercase italic">{transaction.paymentMethod}</span>
+                                    </div>
+                                    <div className="flex justify-end gap-4">
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Status:</span>
+                                        <span className={`font-black uppercase text-sm ${isPaid ? 'text-emerald-600' : 'text-red-500'}`}>
+                                            {isPaid ? '✓ PAID' : '✗ UNPAID'}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -160,6 +197,16 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ transaction, isOpen, onClos
                                         <span className="font-black text-gray-900 uppercase tracking-widest text-sm">Total Amount</span>
                                         <span className="text-2xl font-black text-gray-900 tracking-tight ring-offset-4 ring-primary-50 rounded-lg p-1">₹{transaction.totalAmount.toLocaleString()}.00</span>
                                     </div>
+                                    {/* Status stamp */}
+                                    <div className={`mt-2 py-2 text-center rounded-lg border-2 ${
+                                        isPaid
+                                            ? 'border-emerald-400 text-emerald-600'
+                                            : 'border-red-400 text-red-500'
+                                    }`}>
+                                        <span className="text-sm font-black uppercase tracking-widest">
+                                            {isPaid ? '✓ PAID' : '✗ UNPAID'}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -173,6 +220,8 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ transaction, isOpen, onClos
                                 All prices are inclusive of GST. This is a computer-generated invoice.
                             </p>
                         </div>
+
+                        </div>{/* end z-1 wrapper */}
                     </div>
                 </div>
 
