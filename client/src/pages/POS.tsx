@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import {
     Search, ShoppingCart, Trash2, Plus, Minus,
     CreditCard, Banknote, QrCode, User, Phone,
-    Tag, Truck, X, ChevronRight, CheckCircle2,
+    Tag, Truck, X, ChevronRight, CheckCircle2, Calendar,
 } from 'lucide-react';
 import inventoryService, { Product } from '../services/inventory.service';
 import posService, { TransactionItem, Transaction } from '../services/pos.service';
@@ -29,6 +29,7 @@ export default function POS() {
     const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage');
     const [discountValue, setDiscountValue] = useState(0);
     const [shippingCharge, setShippingCharge] = useState(0);
+    const [saleDate, setSaleDate] = useState(() => new Date().toISOString().slice(0, 10));
 
     const searchRef = useRef<HTMLInputElement>(null);
     const customerBoxRef = useRef<HTMLDivElement>(null);
@@ -111,12 +112,14 @@ export default function POS() {
                 tax: 0,
                 discount: discountAmt,
                 shippingAmount: Number(shippingCharge),
+                saleDate,
             });
             setLastTransaction(result);
             setShowInvoice(true);
             setCart([]);
             setCustomerName(''); setCustomerPhone(''); setCustomerSearch('');
             setDiscountType('percentage'); setDiscountValue(0); setShippingCharge(0);
+            setSaleDate(new Date().toISOString().slice(0, 10));
             fetchProducts(); fetchCustomers();
         } catch (e) {
             console.error('Checkout failed', e);
@@ -404,6 +407,20 @@ export default function POS() {
                                 </button>
                             ))}
                         </div>
+                    </div>
+
+                    {/* Sale Date */}
+                    <div>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                            <Calendar className="w-3 h-3" /> Sale Date
+                        </p>
+                        <input
+                            type="date"
+                            value={saleDate}
+                            max={new Date().toISOString().slice(0, 10)}
+                            onChange={e => setSaleDate(e.target.value)}
+                            className="w-full h-8 px-2.5 text-sm font-semibold text-gray-800 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent cursor-pointer"
+                        />
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">

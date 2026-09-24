@@ -24,6 +24,7 @@ export interface Transaction {
   notes?: string;
   createdAt?: string;   // normalized from Laravel's `created_at`
   created_at?: string;  // raw Laravel timestamp
+  saleDate?: string;    // user-selected sale date (YYYY-MM-DD)
 }
 
 const createTransaction = async (transactionData: Partial<Transaction>): Promise<Transaction> => {
