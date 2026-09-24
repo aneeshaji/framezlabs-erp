@@ -1,4 +1,4 @@
-name: Deploy to cPanel — erp.framezlabs.store
+﻿name: Deploy to cPanel — erp.framezlabs.store
 
 on:
   push:
@@ -13,8 +13,7 @@ jobs:
 
   # ══════════════════════════════════════════════════════════
   #  JOB 1 — Build React/Vite frontend
-  #  Deploys to: erp.framezlabs.store/public/
-  #  (index.html + assets/ sit alongside Laravel index.php)
+  #  Deploys: client/dist/ → erp.framezlabs.store/public/
   # ══════════════════════════════════════════════════════════
   deploy-frontend:
     name: Build and Deploy Frontend
@@ -31,8 +30,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: client
-        # Delete the Windows-generated lockfile so npm resolves Linux-specific
-        # optional deps (e.g. @rollup/rollup-linux-x64-gnu) from scratch.
+        # Delete Windows lockfile so Linux optional deps (rollup native) resolve fresh
         run: |
           rm -f package-lock.json
           npm install
@@ -43,8 +41,6 @@ jobs:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
         run: npm run build
 
-      # client/dist/ contents go into the Laravel public/ folder
-      # so React index.html lives alongside Laravel index.php
       - name: FTP Deploy → erp.framezlabs.store/public/
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -59,36 +55,22 @@ jobs:
             **/.git*/**
 
   # ══════════════════════════════════════════════════════════
-  #  JOB 2 — Deploy Laravel backend (server-laravel/)
-  #  Deploys to: erp.framezlabs.store/   (the Laravel root)
-  #  Skips: .env, storage cache, tests, node_modules
+  #  JOB 2 — Deploy Laravel source files only (NO vendor/)
+  #  Deploys: server-laravel/ → erp.framezlabs.store/
+  #
+  #  vendor/ is intentionally excluded from FTP — uploading
+  #  thousands of files over FTP causes timeouts. Instead,
+  #  composer install runs on the server in the post-deploy
+  #  SSH step (Job 3) which is much faster.
   # ══════════════════════════════════════════════════════════
   deploy-backend:
-    name: Build and Deploy Laravel Backend
+    name: Deploy Laravel Source Files
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup PHP 8.2
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: mbstring, pdo, pdo_mysql, xml, curl, zip, bcmath
-          tools: composer:v2
-
-      - name: Install Composer dependencies (no dev)
-        working-directory: server-laravel
-        run: |
-          composer install \
-            --no-dev \
-            --no-interaction \
-            --prefer-dist \
-            --optimize-autoloader
-
-      # server-laravel/ contents go into erp.framezlabs.store/ root
-      # .env is excluded — it already exists on cPanel and must not be overwritten
       - name: FTP Deploy → erp.framezlabs.store/
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -101,6 +83,7 @@ jobs:
           exclude: |
             **/.git*
             **/.git*/**
+            **/vendor/**
             **/node_modules/**
             **/.env
             **/storage/logs/**
@@ -110,37 +93,45 @@ jobs:
             **/tests/**
 
   # ══════════════════════════════════════════════════════════
-  #  JOB 3 — Post-deploy: SSH into cPanel & run artisan
-  #  Runs after BOTH FTP jobs complete successfully
+  #  JOB 3 — Post-deploy via SSH
+  #  Runs after BOTH FTP jobs succeed.
+  #  Installs composer deps on the server (avoids FTP timeout),
+  #  then clears & rebuilds all Laravel caches + migrations.
   # ══════════════════════════════════════════════════════════
   post-deploy:
-    name: Post-Deploy Artisan Tasks
+    name: Post-Deploy Tasks (SSH)
     runs-on: ubuntu-latest
     needs: [deploy-frontend, deploy-backend]
 
     steps:
-      - name: SSH — clear caches, cache config, run migrations
+      - name: SSH — composer install + artisan cache + migrate
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
+          # Increase timeout — composer install can take a few minutes
+          command_timeout: 10m
           script: |
             cd ~/erp.framezlabs.store
 
-            # Clear stale caches before re-caching
+            # Install/update composer dependencies on the server
+            # This is faster and more reliable than FTP-ing vendor/
+            composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+            # Clear stale caches
             php artisan config:clear
             php artisan route:clear
             php artisan view:clear
             php artisan cache:clear
 
-            # Re-build optimized caches for production
+            # Rebuild optimized caches for production
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
 
-            # Run any pending migrations safely
+            # Run any pending migrations
             php artisan migrate --force
 
             echo "Deployment complete — $(date)"
