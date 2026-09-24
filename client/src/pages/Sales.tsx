@@ -1,5 +1,5 @@
-﻿import { useState, useEffect, useRef } from 'react';
-import { Search, ReceiptText, ShoppingBag, Calendar, TrendingUp, Eye, X, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Search, ReceiptText, ShoppingBag, Calendar, TrendingUp, Eye, X } from 'lucide-react';
 import posService, { Transaction } from '../services/pos.service';
 import InvoiceModal from '../components/modals/InvoiceModal';
 import { useAuth } from '../context/AuthContext';
@@ -78,7 +78,6 @@ export default function SalesHistory() {
     const [preset, setPreset]     = useState<Preset>('month');
     const [dateFrom, setDateFrom] = useState(toYMD(new Date(new Date().getFullYear(), new Date().getMonth(), 1)));
     const [dateTo, setDateTo]     = useState(toYMD(new Date()));
-    const [showDropdown, setShowDropdown] = useState(false);
     const dropRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
