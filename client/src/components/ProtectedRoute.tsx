@@ -23,10 +23,16 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
-    const userRole = user?.user?.role || 'STAFF';
-    if (allowedRoles && !allowedRoles.includes(userRole)) {
-        // Redirect to dashboard if trying to access restricted page
-        return <Navigate to="/" replace />;
+    const rawRole = (user?.user?.role || (user as any)?.role || 'STAFF').toString();
+    const roleUpper = rawRole.toUpperCase();
+    const userRole = roleUpper === 'USER' || roleUpper === 'GUEST' ? 'STAFF' : roleUpper;
+
+    if (allowedRoles && allowedRoles.length > 0) {
+        const allowedUpper = allowedRoles.map(r => r.toUpperCase());
+        if (!allowedUpper.includes(userRole)) {
+            // Redirect to dashboard if trying to access restricted page
+            return <Navigate to="/" replace />;
+        }
     }
 
     return <>{children}</>;

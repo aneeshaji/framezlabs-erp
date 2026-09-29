@@ -1,4 +1,4 @@
-﻿import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
@@ -42,7 +42,7 @@ function App() {
 
               {/* Management Routes */}
               <Route path="inventory" element={
-                <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']}>
+                <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'STAFF']}>
                   <Inventory />
                 </ProtectedRoute>
               } />

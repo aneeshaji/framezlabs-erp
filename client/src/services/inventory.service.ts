@@ -3,6 +3,7 @@ import api from './api';
 // Interface for Product data
 export interface Product {
   id?: string;
+  _id?: string;
   name: string;
   sku: string;
   description?: string;
@@ -18,15 +19,30 @@ export interface Product {
   updatedAt?: string;
 }
 
+const normalizeProduct = (p: any): Product => ({
+  ...p,
+  id: String(p.id ?? p._id ?? ''),
+  _id: String(p._id ?? p.id ?? ''),
+  name: p.name || 'Unnamed Product',
+  sku: p.sku || '',
+  category: p.category || 'Frames',
+  price: Number(p.price || 0),
+  costPrice: Number(p.costPrice || 0),
+  stockLevel: Number(p.stockLevel || 0),
+  minStockLevel: Number(p.minStockLevel || 5),
+  status: p.status || (Number(p.stockLevel || 0) <= 0 ? 'Out of Stock' : 'Active'),
+});
+
 const getProducts = async (): Promise<Product[]> => {
   const response = await api.get('/products');
   const data = response.data;
-  return Array.isArray(data) ? data : (data?.data || []);
+  const list = Array.isArray(data) ? data : (data?.data || []);
+  return list.map(normalizeProduct);
 };
 
 const getProduct = async (id: string): Promise<Product> => {
   const response = await api.get(`/products/${id}`);
-  return response.data;
+  return normalizeProduct(response.data);
 };
 
 const createProduct = async (productData: Partial<Product>): Promise<Product> => {

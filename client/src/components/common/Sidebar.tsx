@@ -1,4 +1,4 @@
-﻿import {
+import {
     LayoutDashboard,
     Package,
     ShoppingCart,
@@ -50,8 +50,9 @@ export default function Sidebar() {
     const location = useLocation();
     const { logout, user } = useAuth();
 
-    const userRole = user?.user?.role || 'STAFF';
-    const currentRole = userRole === 'user' ? 'STAFF' : userRole;
+    const rawRole = (user?.user?.role || (user as any)?.role || 'STAFF').toString();
+    const roleUpper = rawRole.toUpperCase();
+    const currentRole = roleUpper === 'USER' || roleUpper === 'GUEST' ? 'STAFF' : roleUpper;
 
     const filteredMenu = menuItems.filter(item => {
         return item.roles.includes(currentRole as any);

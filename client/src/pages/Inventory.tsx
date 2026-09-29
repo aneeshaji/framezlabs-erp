@@ -50,8 +50,9 @@ export default function Inventory() {
 
     const handleSaveProduct = async (productData: Partial<Product>) => {
         try {
-            if (editingProduct?.id) {
-                await inventoryService.updateProduct(editingProduct.id, productData);
+            const targetId = editingProduct?.id || (editingProduct as any)?._id;
+            if (targetId) {
+                await inventoryService.updateProduct(targetId, productData);
             } else {
                 await inventoryService.createProduct(productData);
             }
@@ -141,7 +142,7 @@ export default function Inventory() {
                     <div>
                         <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Low Stock</p>
                         <p className="text-2xl font-black text-gray-900">
-                            {products.filter(p => p.stockLevel > 0 && p.stockLevel <= (p.minStockLevel || 5)).length}
+                            {products.filter(p => Number(p.stockLevel || 0) > 0 && Number(p.stockLevel || 0) <= Number(p.minStockLevel || 5)).length}
                         </p>
                     </div>
                 </div>
@@ -153,7 +154,7 @@ export default function Inventory() {
                     <div>
                         <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Out of Stock</p>
                         <p className="text-2xl font-black text-gray-900">
-                            {products.filter(p => p.stockLevel <= 0).length}
+                            {products.filter(p => Number(p.stockLevel || 0) <= 0).length}
                         </p>
                     </div>
                 </div>
@@ -215,7 +216,7 @@ export default function Inventory() {
                                 </tr>
                             ) : (
                                 filteredProducts.map((product, index) => (
-                                    <tr key={product.id} className="hover:bg-gray-50/50 transition-colors group">
+                                    <tr key={product.id || product._id || index} className="hover:bg-gray-50/50 transition-colors group">
                                         <td className="px-8 py-5 text-xs font-bold text-gray-400">
                                             {(index + 1).toString().padStart(2, '0')}
                                         </td>
@@ -231,12 +232,12 @@ export default function Inventory() {
                                             </div>
                                         </td>
                                         <td className="px-8 py-5 text-xs font-mono font-bold text-gray-500">{product.sku}</td>
-                                        <td className="px-8 py-5 text-sm font-black text-gray-900">₹{product.price.toLocaleString()}</td>
+                                        <td className="px-8 py-5 text-sm font-black text-gray-900">₹{Number(product.price || 0).toLocaleString()}</td>
                                         <td className="px-8 py-5">
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-xs font-bold text-gray-700">{product.stockLevel} units</span>
-                                                <span className={getStatusColor(product.stockLevel, product.minStockLevel)}>
-                                                    {product.stockLevel <= 0 ? 'Out' : product.stockLevel <= (product.minStockLevel || 5) ? 'Low' : 'Stocked'}
+                                                <span className="text-xs font-bold text-gray-700">{Number(product.stockLevel || 0)} units</span>
+                                                <span className={getStatusColor(Number(product.stockLevel || 0), Number(product.minStockLevel || 5))}>
+                                                    {Number(product.stockLevel || 0) <= 0 ? 'Out' : Number(product.stockLevel || 0) <= Number(product.minStockLevel || 5) ? 'Low' : 'Stocked'}
                                                 </span>
                                             </div>
                                         </td>
@@ -257,7 +258,7 @@ export default function Inventory() {
                                                     <Edit2 className="w-4 h-4" />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleDeleteProduct(product.id!)}
+                                                    onClick={() => handleDeleteProduct(product.id || product._id || '')}
                                                     className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
                                                     title="Delete Product"
                                                 >
@@ -277,7 +278,7 @@ export default function Inventory() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleSaveProduct}
-                onDelete={editingProduct ? () => handleDeleteProduct(editingProduct.id!) : undefined}
+                onDelete={editingProduct ? () => handleDeleteProduct(editingProduct.id || (editingProduct as any)._id || '') : undefined}
 
                 product={editingProduct}
             />

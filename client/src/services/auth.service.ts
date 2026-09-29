@@ -28,8 +28,13 @@ const getCurrentUser = () => {
 };
 
 const getProfile = async () => {
-  const response = await api.get('/auth/profile');
-  return response.data;
+  try {
+    const response = await api.get('/auth/me');
+    return response.data;
+  } catch {
+    const response = await api.get('/auth/profile');
+    return response.data;
+  }
 };
 
 const authService = {
